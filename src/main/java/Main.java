@@ -1,6 +1,6 @@
+import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -34,7 +34,7 @@ public class Main {
             }
         }
 
-        try(ZipInputStream zin = new ZipInputStream(new FileInputStream(zipPath))) {
+        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(zipPath))) {
             ZipEntry entry;
             String name;
             while((entry=zin.getNextEntry())!=null){
@@ -52,8 +52,7 @@ public class Main {
                 zin.closeEntry();
                 fout.close();
             }
-        }
-        catch(Exception ex){
+        } catch(Exception ex){
             log.error("exception", ex);
         }
 
@@ -68,7 +67,7 @@ public class Main {
 
         for (String filePath : csvFileList) {
             try {
-                Scanner csvScanner = new Scanner(new FileInputStream(filePath));
+                Scanner csvScanner = new Scanner(new FileInputStream(filePath), "UTF-8");
                 while (csvScanner.hasNextLine()) {
                     String mark = csvScanner.nextLine().split("#")[0];
                     String markKey = mark.split(",")[0].toLowerCase();
