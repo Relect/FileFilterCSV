@@ -17,8 +17,10 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите полный путь архива и нажмите enter");
         String zipPath = scanner.nextLine();
+        zipPath = zipPath.trim();
         System.out.println("Введите полный путь куда распаковать архив, файлы JSON и нажмите enter");
         String unzipDir = scanner.nextLine() + "\\";
+        unzipDir = unzipDir.trim();
 
         File createUnzipDir = new File(unzipDir);
         if (!createUnzipDir.exists()) {
@@ -40,7 +42,6 @@ public class Main {
             while((entry=zin.getNextEntry())!=null){
 
                 name = entry.getName(); // получим название файла
-                log.info("In archive there is file: " + name);
 
                 // распаковка
                 FileOutputStream fout = new FileOutputStream(unzipDir + name);
@@ -51,6 +52,7 @@ public class Main {
                 zin.closeEntry();
                 fout.close();
                 csvFileList.add(unzipDir+name); // добавляем файл в список файлов
+                log.info("In archive file added is cvs List: " + unzipDir + name);
             }
         } catch(Exception ex){
             log.error("exception", ex);
