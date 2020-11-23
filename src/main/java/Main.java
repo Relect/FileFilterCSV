@@ -11,9 +11,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-
+        // Создаём список csv файлов после распаковки
         ArrayList<String> csvFileList = new ArrayList<>();
-
+        
+        // считываем данные архива и пути распаковки
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите полный путь архива и нажмите enter");
         String zipPath = scanner.nextLine();
