@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import java.io.*;
@@ -10,33 +9,28 @@ public class Main {
     private static final Logger log = Logger.getLogger(Main.class);
 
     public static void main(String[] args) {
-
-        // Создаём список csv файлов после распаковки
-        ArrayList<String> csvFileList = new ArrayList<>();
-        
-        // считываем данные архива и пути распаковки
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите полный путь архива и нажмите enter");
-        String zipPath = scanner.nextLine();
-        zipPath = zipPath.trim();
-        System.out.println("Введите полный путь куда распаковать архив, файлы JSON и нажмите enter");
-        String unzipDir = scanner.nextLine() + "\\";
-        unzipDir = unzipDir.trim();
+        System.out.println("Enter the full path to the archive and click \"enter\"");
+        String zipPath = scanner.nextLine().trim();
+        System.out.println("Enter the full path where to unpack the archive, JSON files and press \"enter\"");
+        String unzipDir = scanner.nextLine().trim();
 
-        File createUnzipDir = new File(unzipDir);
-        if (!createUnzipDir.exists()) {
-            boolean result = false;
+        Main.unzipAndCreateJSON(zipPath, unzipDir);
+    }
+
+    public static void unzipAndCreateJSON (String zipPath, String unzipDir) {
+        File zipDirFiles = new File(unzipDir);
+        if (!zipDirFiles.exists()) {
             try {
-                createUnzipDir.mkdir();
-                result = true;
+                zipDirFiles.mkdir();
+                log.info(unzipDir + " Dir created");
             } catch (SecurityException se) {
                 se.printStackTrace();
             }
-            if(result) {
-                log.info(unzipDir + " Dir created");
-            }
         }
-
+        unzipDir = unzipDir + "\\";
+        // Создаём список csv файлов для распаковки
+        ArrayList<String> csvFileList = new ArrayList<>();
         try (ZipInputStream zin = new ZipInputStream(new FileInputStream(zipPath))) {
             ZipEntry entry;
             String name;
@@ -52,30 +46,27 @@ public class Main {
                 fout.flush();
                 zin.closeEntry();
                 fout.close();
-                csvFileList.add(unzipDir+name); // добавляем файл в список файлов
-                log.info("In archive file added is cvs List: " + unzipDir + name);
+                csvFileList.add(unzipDir+name); // добавляем файл в список csv файлов
+                log.info("In archive file added is cvs List files: " + unzipDir + name);
             }
         } catch(Exception ex){
             log.error("exception", ex);
         }
 
-        HashMap<String, List<Integer>> mapMark = new HashMap<>();
-        mapMark.put("mark01", null);
-        mapMark.put("mark17", null);
-        mapMark.put("mark23", null);
-        mapMark.put("mark35", null);
-        mapMark.put("markfv", null);
-        mapMark.put("markfx", null);
-        mapMark.put("markft", null);
+        HashMap<Mark, List<Integer>> mapMark = new HashMap<>();
+        Mark[] marks = Mark.values();
+        for (Mark m: marks) {
+            mapMark.put(m, null);
+        }
 
         for (String filePath : csvFileList) {
             try {
                 Scanner csvScanner = new Scanner(new FileInputStream(filePath), "UTF-8");
                 while (csvScanner.hasNextLine()) {
-                    String mark = csvScanner.nextLine().split("#")[0];
-                    String markKey = mark.split(",")[0].toLowerCase();
-                    if(mark.contains(",")) {
-                        int markValue = Integer.parseInt(mark.split(",")[1]);
+                    String markStr = csvScanner.nextLine().split("#")[0];
+                    if(markStr.contains(",")) {
+                        Mark markKey = Mark.valueOf(markStr.split(",")[0].toLowerCase());
+                        int markValue = Integer.parseInt(markStr.split(",")[1]);
                         List<Integer> markValueList = new ArrayList<>();
                         markValueList.add(markValue);
                         mapMark.merge(markKey, markValueList, (o, n) -> {
@@ -94,10 +85,18 @@ public class Main {
         mapMark.forEach((k, v) -> {
             String keyNew = null;
             switch (k) {
-                case "markfv": keyNew = "markFV"; break;
-                case "markfx": keyNew = "markFX"; break;
-                case "markft": keyNew = "markFT"; break;
-                default: keyNew = k; break;
+                case markfv:
+                    keyNew = "markFV";
+                    break;
+                case markfx:
+                    keyNew = "markFX";
+                    break;
+                case mark35:
+                    keyNew = "markFT";
+                    break;
+                default:
+                    keyNew = k.toString();
+                    break;
             }
             if (v != null) {
                 Collections.sort(v);
@@ -114,7 +113,6 @@ public class Main {
             }
         });
 
-
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(new File(unzipDir + "1.json"), mapMark1);
@@ -128,4 +126,6 @@ public class Main {
         }
     }
 }
+
+
 
