@@ -44,13 +44,13 @@ public class Main {
 
                 // распаковка
                 FileOutputStream fout = new FileOutputStream(unzipDir + name);
-                csvFileList.add(unzipDir+name);
                 for (int c = zin.read(); c != -1; c = zin.read()) {
                     fout.write(c);
                 }
                 fout.flush();
                 zin.closeEntry();
                 fout.close();
+                csvFileList.add(unzipDir+name); // добавляем файл в список файлов
             }
         } catch(Exception ex){
             log.error("exception", ex);
