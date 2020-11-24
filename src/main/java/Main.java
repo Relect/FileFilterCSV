@@ -91,7 +91,7 @@ public class Main {
                 case markfx:
                     keyNew = "markFX";
                     break;
-                case mark35:
+                case markft:
                     keyNew = "markFT";
                     break;
                 default:

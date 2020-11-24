@@ -1,6 +1,7 @@
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.junit.Before;
+import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
@@ -17,21 +18,59 @@ class MainTest {
     private final String unzipDir = "C:\\temp";
     private final String file1Csv = "1.csv";
     private final String file2Csv = "2.csv";
+    private final String json1 = "{\"mark01\":11,\"mark17\":17,\"mark23\":0,\"markFX\":55}";
+    private final String json2 = "{\"mark01\":11,\"mark17\":17,\"mark23\":0,\"mark35\":null,\"markFT\":null,\"markFV\":null,\"markFX\":55}";
+    private final String json3 = "{\"mark01\":[9,2],\"mark17\":[17],\"mark23\":[0],\"markFX\":[50,5]}";
 
     @Test
-    void unzipAndCreateJSON() {
-        Main.unzipAndCreateJSON( zipPath, unzipDir);
+    public void checkJSON1() {
+        Main.unzipAndCreateJSON(zipPath, unzipDir);
+        try (FileInputStream fin = new FileInputStream("c:\\temp\\1.json")) {
+            byte[] buffer = new byte[fin.available()];
+            fin.read(buffer, 0, fin.available());
+            boolean value = new String(buffer).equals(json1);
+            Assert.assertTrue(value);
+        } catch (IOException e) {
+            Assert.fail("При тестировании JSON1 произошло исключение\n" + e);
+        }
     }
 
-    @Before
-    void createArchivCsv() {
+    @Test
+    public void checkJSON2() {
+        Main.unzipAndCreateJSON(zipPath, unzipDir);
+        try (FileInputStream fin = new FileInputStream("c:\\temp\\2.json")) {
+            byte[] buffer = new byte[fin.available()];
+            fin.read(buffer, 0, fin.available());
+            boolean value = new String(buffer).equals(json2);
+            Assert.assertTrue(value);
+        } catch (IOException e) {
+            Assert.fail("При тестировании JSON2 произошло исключение\n" + e);
+        }
+    }
+
+    @Test
+    public void checkJSON3() {
+        Main.unzipAndCreateJSON(zipPath, unzipDir);
+        try (FileInputStream fin = new FileInputStream("c:\\temp\\3.json")) {
+            byte[] buffer = new byte[fin.available()];
+            fin.read(buffer,0,fin.available());
+            boolean value = new String(buffer).equals(json3);
+            Assert.assertTrue(value);
+        }catch (IOException e) {
+            Assert.fail("При тестировании JSON3 произошло исключение\n" + e);
+        }
+    }
+
+    @BeforeEach
+    public void createArchivCsv() {
         try (
                 BufferedWriter writer1 = Files.newBufferedWriter(Paths.get(file1Csv));
                 CSVPrinter csvPrinter1 = new CSVPrinter(writer1, CSVFormat.DEFAULT);
                 BufferedWriter writer2 = Files.newBufferedWriter(Paths.get(file2Csv));
                 CSVPrinter csvPrinter2 = new CSVPrinter(writer2, CSVFormat.DEFAULT)
         ) {
-            csvPrinter1.printRecord("mark01", "1");
+            csvPrinter1.printRecord("mark01", "2");
+            csvPrinter1.printRecord("mark23", "0");
             csvPrinter1.printRecord("markFX", "5");
 
             csvPrinter2.printRecord("mark01", "9");
