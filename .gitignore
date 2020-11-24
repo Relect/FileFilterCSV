@@ -1,6 +1,5 @@
 .idea\
 FileFilterCSV.iml
-target\
+
 
 # Project exclude paths
-/target/
